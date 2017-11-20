@@ -28,6 +28,7 @@ licenses(["notice"])  # Apache 2.0
 cc_library(
     name = "spinlock_wait",
     srcs = [
+        "internal/spinlock_akaros.inc",
         "internal/spinlock_posix.inc",
         "internal/spinlock_wait.cc",
         "internal/spinlock_win32.inc",
@@ -190,9 +191,6 @@ cc_library(
     srcs = ["internal/throw_delegate.cc"],
     hdrs = ["internal/throw_delegate.h"],
     copts = ABSL_DEFAULT_COPTS + ABSL_EXCEPTIONS_FLAG,
-    features = [
-        "-use_header_modules",
-    ],
     visibility = [
         "//absl:__subpackages__",
     ],
@@ -222,6 +220,38 @@ cc_library(
     deps = [
         ":config",
         "@com_google_googletest//:gtest",
+    ],
+)
+
+cc_library(
+    name = "pretty_function",
+    hdrs = ["internal/pretty_function.h"],
+    visibility = ["//absl:__subpackages__"],
+)
+
+cc_library(
+    name = "exception_safety_testing",
+    testonly = 1,
+    srcs = ["internal/exception_safety_testing.cc"],
+    hdrs = ["internal/exception_safety_testing.h"],
+    copts = ABSL_TEST_COPTS + ABSL_EXCEPTIONS_FLAG,
+    deps = [
+        ":config",
+        ":pretty_function",
+        "//absl/meta:type_traits",
+        "//absl/strings",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
+cc_test(
+    name = "exception_safety_testing_test",
+    srcs = ["exception_safety_testing_test.cc"],
+    copts = ABSL_TEST_COPTS + ABSL_EXCEPTIONS_FLAG,
+    deps = [
+        ":exception_safety_testing",
+        "//absl/memory",
+        "@com_google_googletest//:gtest_main",
     ],
 )
 
